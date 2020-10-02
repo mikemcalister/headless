@@ -25,7 +25,7 @@ const Post = () => {
 	<Layout>
 		<>
 		<header>
-			<h2 class="site-title">Go Headless</h2>
+			<h2 className="site-title">Go Headless</h2>
 		</header>
 
 		<article className="post">
