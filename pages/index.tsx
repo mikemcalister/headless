@@ -1,24 +1,56 @@
-//import 'bootstrap/dist/css/bootstrap.min.css';
+import { gql } from "apollo-boost";
+import { useQuery } from "@apollo/react-hooks";
+import withData from "../lib/apollo";
+import Link from "next/link";
+import Head from "next/head";
+import { Layout } from "../components/layout";
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
 import Jumbotron from 'react-bootstrap/Container';
 
-const Home = () => (
-    <>
-    <link
-        rel="stylesheet"
-        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-        crossorigin="anonymous"
-    />
-    <Container className="p-3">
-        <Jumbotron className="jumbotron">
-            <h1>Hello, Headless!</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac purus nec diam laoreet sollicitudin. Fusce ullamcorper imperdiet turpis, non accumsan enim egestas in.</p>
-            <Button>Welcome to the future</Button>
-        </Jumbotron>
-    </Container>
-    </>
-);
+const Home = () => {
+  const { data } = useQuery(gql`
+	query {
+	  posts {
+		nodes {
+		  id
+		  title
+		  slug
+		  excerpt
+		}
+	  }
+	}
+  `);
 
-export default Home;
+  const posts = data?.posts?.nodes;
+
+  return (
+	<Layout>
+		<Head>
+			<title>Headless WPE Blog</title>
+		</Head>
+		<header>
+			<h1 className="site-title">Go Headless</h1>
+		</header>
+		
+		{ posts &&
+			posts.map(post => (
+				<article key={post.id}>
+					<Jumbotron className="jumbotron">
+						<h2 className="post-title">
+							<Link href={`/[slug]`} as={`/${post.slug}`}>
+								<a>{post.title}</a>
+							</Link>
+						</h2>
+						<div dangerouslySetInnerHTML={{__html: post.excerpt}} />
+						<Button href={post.slug}>
+							Read More
+						</Button>
+					</Jumbotron>
+				</article>
+			))
+		}
+	</Layout>
+  );
+};
+
+export default withData(Home);
